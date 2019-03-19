@@ -15,3 +15,5 @@ Features:
 
 ## Logic and Code
 
+Game logic is not complicated here, especially if done using simple double array 3x3, completed whole logic in javascript, made html table and just proceeded from there with UI. 
+I did not want to do that and I created divs, connected them with js and moved forward. It is certanly worse approach but I did it to explore what kind of problems I would encounter and to practice DOM manipulation.

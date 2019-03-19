@@ -1,13 +1,15 @@
 // Global variables
 
 let gameInfo = {
-    time: 0, // newDate
-    winner: "", // gameInfo.player1 || gameInfo.player2
+    time: 0, 
+    winner: "",
     turn: 0,
-    playerTurn: "", // gameInfo.player1 || gameInfo.player2
+    playerTurn: "",
     sign: "X",
     player: "Player1",
 },
+    player1Color = document.querySelectorAll('.player1-color'),
+    player2Color = document.querySelectorAll('.player2-color'),
     replay = false,
     replayMoves,
     savedGames,
@@ -33,8 +35,7 @@ let gameInfo = {
     tableCheck = [];
 
 
-
-// Main Code
+//////////////////// Main Code ///////////////////////
 
 document.getElementById("new-game").addEventListener("click", startGame);
 document.getElementById("set-name1").addEventListener("click", setPlayerName.bind(null, "player1"));
@@ -50,10 +51,13 @@ document.getElementById("save").addEventListener("click", saveGame);
 document.getElementById("load").addEventListener("click", loadGame);
 
 
-// Methods
+//////////// Methods //////////////////
 
 function startGame() {
-    if (gameInProgress || replay) return popUp("Can not start new game.")
+    if (gameInProgress || replay) {
+        return popUp("Can not start new game.");
+    };
+
     gameInProgress = true;
     clearTable();
     document.getElementById("play-area").addEventListener("click", moveFlow);
@@ -69,14 +73,24 @@ function startGame() {
     currentSign = "X";
     player1Name = document.getElementById("player1").innerHTML;
     player2Name = document.getElementById("player2").innerHTML;
-    if (numberOfGames === 1) firstPlayer = player1Name
-    else changeFirstPlayer()
+
+    if (numberOfGames === 1) {
+        firstPlayer = player1Name;
+    } else {
+        modifyPlayersAndColors();
+    };
+
     currentPlayer = firstPlayer;
     showCurrentPlayer(currentPlayer);
+
     for (let i = 0; i < 9; i++) {
         tableCheck[i] = i;
-    }
-    if (document.getElementById("stamp") !== null) removeElement("stamp");
+    };
+
+    if (document.getElementById("stamp") !== null) {
+        removeElement("stamp");
+    };
+
     addStamp("Start!");
     setTimeout(stampFade, 1000);
     timeFlow = setInterval(startTime, 1000);
@@ -84,32 +98,45 @@ function startGame() {
 
 function moveFlow(event) {
     let cell = parseInt(event.target.id.match(/\d+/));
-    if (!checkIfValidMove(cell)) return
+
+    if (!checkIfValidMove(cell)) {
+        return;
+    };
+
     gameLog = logGame();
     drawMove(cell);
     ++gameInfo.turn;
     document.getElementById("turn").innerHTML = setTurn();
     currentSign = (currentSign === "X") ? "O" : "X";
+
     if (checkWinner()) {
         addStamp(currentPlayer);
         gameInfo.winner = currentPlayer;
         gameLog.winner = currentPlayer;
-        if (gameInfo.winner === player1Name)++player1Score
-        else ++player2Score
+
+        if (gameInfo.winner === player1Name) {
+            ++player1Score;
+        } else {
+            ++player2Score;
+        };
+
         setScore();
         endGame();
-        return true
+
+        return true;
     };
+
     if (gameInfo.turn === 9) {
         addStamp("Draw!");
         gameInfo.winner = "Draw";
         gameLog.winner = "Draw";
         endGame();
-        return true
-    }
+        return true;
+    };
+
     currentPlayer = (currentPlayer === player1Name) ? player2Name : player1Name;
     showCurrentPlayer(currentPlayer);
-}
+};
 
 function endGame() {
     saveGameLog("Game Log");
@@ -125,53 +152,51 @@ function clearTable() {
     for (let i = 0; i < 9; i++) {
         document.getElementById(`cell${i}`).classList.remove("signX");
         document.getElementById(`cell${i}`).classList.remove("signO");
-    }
-}
+    };
+};
 
-function changeFirstPlayer() {
-    let player1 = document.getElementById("player1");
-    let player1Score = document.getElementById("player1-score");
-    let player2 = document.getElementById("player2");
-    let player2Score = document.getElementById("player2-score");
-    if (firstPlayer === player1Name) {
+function modifyPlayersAndColors(reset = false) {
+    if (!reset && firstPlayer === player1Name) {
         firstPlayer = player2Name;
-        player2.classList.add("text-red");
-        player2Score.classList.add("text-red");
-        player2.classList.remove("text-green");
-        player2Score.classList.remove("text-green");
-        player1.classList.remove("text-red");
-        player1Score.classList.remove("text-red");
-        player1.classList.add("text-green");
-        player1Score.classList.add("text-green");
+
+        player1Color.forEach((element) => element.style.color = '#00b400');
+        player2Color.forEach((element) => element.style.color = 'red');
     } else {
-        firstPlayer = player1Name;
-        player1.classList.add("text-red");
-        player1Score.classList.add("text-red");
-        player1.classList.remove("text-green");
-        player1Score.classList.remove("text-green");
-        player2.classList.remove("text-red");
-        player2Score.classList.remove("text-red");
-        player2.classList.add("text-green");
-        player2Score.classList.add("text-green");
-    }
-}
+        if (!reset) {
+            firstPlayer = player1Name;
+        };
+
+        player1Color.forEach((element) => element.style.color = 'red');
+        player2Color.forEach((element) => element.style.color = '#00b400');
+    };
+};
 
 function surrenderGame() {
-    if (!gameInProgress || replay || gameInfo.turn === 0) return popUp("Can not surrender game.")
+    if (!gameInProgress || replay || gameInfo.turn === 0) {
+        return popUp("Can not surrender game.");
+    };
+
     gameInfo.winner = (currentPlayer === player1Name) ? player2Name : player1Name;
     addStamp(gameInfo.winner);
-    if (gameInfo.winner === player1Name)++player1Score
-    else ++player2Score
+
+    if (gameInfo.winner === player1Name) {
+        ++player1Score;
+    } else {
+        ++player2Score;
+    };
+
     setScore();
     endGame();
 };
 
 function startTime() {
     ++seconds;
+
     if (seconds >= 60) {
         seconds = 0;
         ++minutes;
-    }
+    };
+
     let displayMinutes = minutes.toString().padStart(2, "0");
     let displaySeconds = seconds.toString().padStart(2, "0");
     totalTime = displayMinutes + ":" + displaySeconds;
@@ -179,17 +204,24 @@ function startTime() {
 };
 
 function setPlayerName(id) {
-    if (gameInProgress || replay) return popUp("Names can not be changed now.")
+    if (gameInProgress || replay) {
+        return popUp("Names can not be changed now.");
+    };
     document.getElementById(id).innerHTML = prompt("Enter name: ");
 };
 
 function checkIfValidMove(cell) {
     if (!moveHistory.reduce(function (acc, item, index) {
-        if (cell === item.cell) acc = true
-        return acc
-    }, false)) return true
-    else return false
-}
+        if (cell === item.cell) {
+            acc = true;
+        };
+        return acc;
+    }, false)) {
+        return true;
+    } else {
+        return false;
+    };
+};
 
 function drawMove(cell) {
     moveHistory[gameInfo.turn] = {
@@ -200,36 +232,43 @@ function drawMove(cell) {
     };
     tableCheck[cell] = currentSign;
     document.getElementById(`cell${cell}`).classList.add(`sign${currentSign}`);
-}
+};
 
 function checkWinner() {
-    if (tableCheck[0] === tableCheck[1] && tableCheck[0] === tableCheck[2]) return true
-    else if (tableCheck[3] === tableCheck[4] && tableCheck[3] === tableCheck[5]) return true
-    else if (tableCheck[6] === tableCheck[7] && tableCheck[6] === tableCheck[8]) return true
-    else if (tableCheck[0] === tableCheck[3] && tableCheck[0] === tableCheck[6]) return true
-    else if (tableCheck[1] === tableCheck[4] && tableCheck[1] === tableCheck[7]) return true
-    else if (tableCheck[2] === tableCheck[5] && tableCheck[2] === tableCheck[8]) return true
-    else if (tableCheck[0] === tableCheck[4] && tableCheck[0] === tableCheck[8]) return true
-    else if (tableCheck[2] === tableCheck[4] && tableCheck[2] === tableCheck[6]) return true
+    if (tableCheck[0] === tableCheck[1] && tableCheck[0] === tableCheck[2]) return true;
+    else if (tableCheck[3] === tableCheck[4] && tableCheck[3] === tableCheck[5]) return true;
+    else if (tableCheck[6] === tableCheck[7] && tableCheck[6] === tableCheck[8]) return true;
+    else if (tableCheck[0] === tableCheck[3] && tableCheck[0] === tableCheck[6]) return true;
+    else if (tableCheck[1] === tableCheck[4] && tableCheck[1] === tableCheck[7]) return true;
+    else if (tableCheck[2] === tableCheck[5] && tableCheck[2] === tableCheck[8]) return true;
+    else if (tableCheck[0] === tableCheck[4] && tableCheck[0] === tableCheck[8]) return true;
+    else if (tableCheck[2] === tableCheck[4] && tableCheck[2] === tableCheck[6]) return true;
 };
 
 function addStamp(name) {
     let text = "<p>Winner is</p>";
-    if (name === "Start!" || name === "Draw!" || name === "Not finished") text = "";
+
+    if (name === "Start!" || name === "Draw!" || name === "Not finished") {
+        text = "";
+    };
+
     document.getElementById("play-area").innerHTML += `<div id='stamp'>${text}<p>${name}</p></div>`;
     document.getElementById("stamp").classList.add("stamp");
-}
+};
 
 function removeElement(id) {
-    if (document.getElementById(id) === null) return
+    if (document.getElementById(id) === null) {
+        return;
+    };
+
     document.getElementById(id).remove();
-}
+};
 
 function stampFade() {
     document.getElementById("stamp").classList.remove("stamp");
     document.getElementById("stamp").classList.add("fade");
     setTimeout(removeElement.bind(null, "stamp"), 2000);
-}
+};
 
 function showCurrentPlayer(player) {
     if (player === player1Name) {
@@ -238,8 +277,8 @@ function showCurrentPlayer(player) {
     } else {
         document.getElementById("player2").classList.add("move-indicator");
         document.getElementById("player1").classList.remove("move-indicator");
-    }
-}
+    };
+};
 
 function setScore() {
     document.getElementById("player1-score").innerHTML = player1Score;
@@ -247,7 +286,10 @@ function setScore() {
 };
 
 function resetScoreNames() {
-    if (gameInProgress || replay) return popUp("Can not reset now.")
+    if (gameInProgress || replay) {
+        return popUp("Can not reset now.");
+    };
+
     numberOfGames = 1;
     player1Score = 0;
     player2Score = 0;
@@ -258,23 +300,13 @@ function resetScoreNames() {
     setScore();
     document.getElementById("player1").innerHTML = "Player1";
     document.getElementById("player2").innerHTML = "Player2";
-    let player1S = document.getElementById("player1");
-    let player1ScoreS = document.getElementById("player1-score");
-    let player2S = document.getElementById("player2");
-    let player2ScoreS = document.getElementById("player2-score");
-    player1S.classList.add("text-red");
-    player1ScoreS.classList.add("text-red");
-    player1S.classList.remove("text-green");
-    player1ScoreS.classList.remove("text-green");
-    player2S.classList.remove("text-red");
-    player2ScoreS.classList.remove("text-red");
-    player2S.classList.add("text-green");
-    player2ScoreS.classList.add("text-green");
+
+    modifyPlayersAndColors(true);
 };
 
 function setTurn() {
-    return "Turn: " + gameInfo.turn
-}
+    return "Turn: " + gameInfo.turn;
+};
 
 function logGame() {
     return {
@@ -287,20 +319,26 @@ function logGame() {
         player2: player2Name,
         numberOfTurns: gameInfo.turn + 1,
         turnHistory: moveHistory
-    }
-}
+    };
+};
 
 function saveGameLog(storageName) {
-    if (localStorage.getItem(storageName) === null) localStorage.setItem(storageName, `{ "games": [] }`);
+    if (localStorage.getItem(storageName) === null) {
+        localStorage.setItem(storageName, `{ "games": [] }`);
+    };
+
     let obj = JSON.parse(localStorage.getItem(storageName));
     obj.games.unshift(gameLog);
     localStorage.setItem(storageName, JSON.stringify(obj));
-}
+};
 
 function pullGameLog(storageName) {
-    if (localStorage.getItem(storageName) === null) return false
+    if (localStorage.getItem(storageName) === null) {
+        return false;
+    };
+
     return JSON.parse(localStorage.getItem(storageName));
-}
+};
 
 function showGameLog() {
     if (document.getElementById("gamelog-table") !== null) {
@@ -311,8 +349,12 @@ function showGameLog() {
         document.getElementById("controls").classList.add("controls-hide");
         document.getElementById("controls").classList.remove("controls-show");
         return setTimeout(removeElement.bind(null, "game-log"), 1500);
-    }
-    if (!pullGameLog("Game Log")) return popUp("No games present!")
+    };
+
+    if (!pullGameLog("Game Log")) {
+        return popUp("No games present!");
+    };
+
     document.getElementById("side-area").insertAdjacentHTML("beforeend", `<div id="game-log" class="from-right"></div>`);
     let obj = pullGameLog("Game Log");
     let rows = (obj.games.length <= 10) ? obj.games.length : 10;
@@ -321,7 +363,7 @@ function showGameLog() {
         tableHTML += `<tr id="game-${i}" onclick="selectGame(event)"><td>${obj.games[i].time}</td><td>${obj.games[i].winner}</td>` +
             `<td>${obj.games[i].gameDuration}</td><td>${obj.games[i].numberOfTurns}</td></tr>`;
         tableMark = i;
-    }
+    };
     tableHTML += "</table>";
     document.getElementById("game-log").innerHTML = tableHTML + `<div id="table-control">` +
         `<button id="previous" class="table-button">Previous</button>` +
@@ -336,38 +378,46 @@ function tableNav(button) {
     let tableHTML = "<table id=gamelog-table><tr><th>Date: </th><th>Winner: </th><th>Duration: </th><th>Turns: </th></tr>";
     let obj = pullGameLog("Game Log");
     let rows;
-    if (button === "next" && tableMark + 1 >= obj.games.length) return
-    else if (button === "next") {
+    if (button === "next" && tableMark + 1 >= obj.games.length) {
+        return;
+    } else if (button === "next") {
         rows = (tableMark + 11 <= obj.games.length) ? tableMark + 10 : obj.games.length - 1;
+
         for (let i = tableMark + 1; i <= rows; i++) {
             tableHTML += `<tr id="game-${i}" onclick="selectGame(event)"><td>${obj.games[i].time}</td><td>${obj.games[i].winner}</td>` +
                 `<td>${obj.games[i].gameDuration}</td><td>${obj.games[i].numberOfTurns}</td></tr>`;
-        }
+        };
+
         tableMark += 9;
         document.getElementById("gamelog-table").innerHTML = tableHTML + `<div id="table-control">`;
-    }
-    else if (button === "previous" && tableMark <= 9) return
-    else {
+    } else if (button === "previous" && tableMark <= 9) {
+        return;
+    } else {
         rows = tableMark - 18;
+
         for (let i = rows; i < rows + 10; i++) {
             tableHTML += `<tr id="game-${i}" onclick="selectGame(event)"><td>${obj.games[i].time}</td><td>${obj.games[i].winner}</td>` +
                 `<td>${obj.games[i].gameDuration}</td><td>${obj.games[i].numberOfTurns}</td></tr>`;
-        }
+        };
+
         tableMark -= 9;
         tableHTML += `<div id="table-control">`;
         document.getElementById("gamelog-table").innerHTML = tableHTML;
-    }
-}
+    };
+};
 
 function selectGame(event) {
     let obj = pullGameLog("Game Log");
     let gameNumber = parseInt(event.currentTarget.id.match(/\d+/));
     gameInReplay = obj.games[gameNumber];
     replayGame();
-}
+};
 
 function replayGame() {
-    if (replay) return popUp("Can not start replay now.")
+    if (replay) {
+        return popUp("Can not start replay now.");
+    };
+
     replay = true;
     clearTable();
     document.getElementById("player1").innerHTML = gameInReplay.player1;
@@ -375,7 +425,7 @@ function replayGame() {
     replayMoves = 0;
     playReplay = setInterval(drawMoves, 1000);
     replay = true;
-}
+};
 
 function drawMoves() {
     if (replayMoves === gameInReplay.turnHistory.length) {
@@ -386,12 +436,14 @@ function drawMoves() {
         setTimeout(function () {
             replay = false
         }, 1000);
-        return
-    }
+        return;
+    };
+
     let sign = (replayMoves % 2 === 0) ? "X" : "O";
     document.getElementById(`cell${gameInReplay.turnHistory[replayMoves].cell}`).classList.add(`sign${sign}`);
     replayMoves++;
-}
+};
+
 function nextReplayMove() {
     clearInterval(playReplay);
     drawMoves();
@@ -412,7 +464,7 @@ function pauseReplay() {
 function playReplayBtn() {
     clearInterval(playReplay);
     playReplay = setInterval(drawMoves, 1000);
-}
+};
 
 function popUp(msg) {
     let firstChild = document.body.firstChild;
@@ -425,17 +477,20 @@ function popUp(msg) {
     popWindow.appendChild(button);
     document.body.insertBefore(popWindow, firstChild);
     document.querySelector(".pop-btn").addEventListener("click", killPop);
-}
+};
 
 function killPop(event) {
     document.querySelector("." + event.target.parentElement.className).remove();
-}
+};
 
 function saveGame() {
-    if (!gameInProgress) return popUp("Can not save game right now.")
+    if (!gameInProgress) {
+        return popUp("Can not save game right now.");
+    };
+
     saveGameLog("Saved Games");
     return popUp("Game Saved.");
-}
+};
 
 function loadGame() {
     if (document.getElementById("gamelog-table-load") !== null) {
@@ -443,17 +498,23 @@ function loadGame() {
         document.getElementById("game-log-load").classList.remove("from-right");
         document.getElementById("game-log-load").classList.add("fade-to-right");
         return setTimeout(removeElement.bind(null, "game-log-load"), 1500);
-    }
-    if (!pullGameLog("Saved Games")) return popUp("No games present!")
+    };
+
+    if (!pullGameLog("Saved Games")) {
+        return popUp("No games present!");
+    };
+
     document.getElementById("side-area").insertAdjacentHTML("beforeend", `<div id="game-log-load" class="from-right"></div>`);
     let obj = pullGameLog("Saved Games");
     let rows = (obj.games.length <= 10) ? obj.games.length : 10;
     let tableHTML = "<table id=gamelog-table-load><tr><th>Date: </th><th>Winner: </th><th>Duration: </th><th>Turns: </th></tr>";
+
     for (let i = 0; i < rows; i++) {
         tableHTML += `<tr id="saved-game-${i}" onclick="selectSavedGame(event)"><td>${obj.games[i].time}</td><td>${obj.games[i].winner}</td>` +
             `<td>${obj.games[i].gameDuration}</td><td>${obj.games[i].numberOfTurns}</td></tr>`;
         tableMarkLoad = i;
-    }
+    };
+
     tableHTML += "</table>";
     document.getElementById("game-log-load").innerHTML = tableHTML + `<div id="table-control-load">` +
         `<button id="previous-load" class="table-button">Previous</button>` +
@@ -466,19 +527,23 @@ function tableNavLoad(button) {
     let tableHTML = "<table id=gamelog-table-load><tr><th>Date: </th><th>Winner: </th><th>Duration: </th><th>Turns: </th></tr>";
     let obj = pullGameLog("Saved Games");
     let rows;
-    if (button === "next-load" && tableMarkLoad + 1 >= obj.games.length) return
-    else if (button === "next-load") {
+    if (button === "next-load" && tableMarkLoad + 1 >= obj.games.length) {
+        return;
+    } else if (button === "next-load") {
         rows = (tableMarkLoad + 11 <= obj.games.length) ? tableMarkLoad + 10 : obj.games.length - 1;
+
         for (let i = tableMarkLoad + 1; i <= rows; i++) {
             tableHTML += `<tr id="saved-game-${i}" onclick="selectSavedGame(event)"><td>${obj.games[i].time}</td><td>${obj.games[i].winner}</td>` +
                 `<td>${obj.games[i].gameDuration}</td><td>${obj.games[i].numberOfTurns}</td></tr>`;
-        }
+        };
+
         tableMarkLoad += 9;
         document.getElementById("gamelog-table-load").innerHTML = tableHTML + `<div id="table-control-load">`;
-    }
-    else if (button === "previous-load" && tableMarkLoad <= 9) return
-    else {
+    } else if (button === "previous-load" && tableMarkLoad <= 9) {
+        return;
+    } else {
         rows = tableMarkLoad - 18;
+
         for (let i = rows; i < rows + 10; i++) {
             tableHTML += `<tr id="saved-game-${i}" onclick="selectSavedGame(event)"><td>${obj.games[i].time}</td><td>${obj.games[i].winner}</td>` +
                 `<td>${obj.games[i].gameDuration}</td><td>${obj.games[i].numberOfTurns}</td></tr>`;
@@ -486,11 +551,14 @@ function tableNavLoad(button) {
         tableMarkLoad -= 9;
         tableHTML += `<div id="table-control-load">`;
         document.getElementById("gamelog-table-load").innerHTML = tableHTML;
-    }
-}
+    };
+};
 
 function selectSavedGame(event) {
-    if (gameInProgress) return popUp("Cannot load game right now.");
+    if (gameInProgress) {
+        return popUp("Cannot load game right now.");
+    };
+
     let obj = pullGameLog("Saved Games");
     let gameNumber = parseInt(event.currentTarget.id.match(/\d+/));
     let loadedGame = obj.games[gameNumber];
@@ -516,23 +584,29 @@ function selectSavedGame(event) {
     document.getElementById("player2").innerHTML = player2Name;
     currentPlayer = (moveHistory[moveHistory.length - 1].playerName === player1Name) ? player2Name : player1Name;
     firstPlayer = (moveHistory[0].playerName === player1Name) ? player2Name : player1Name;
-    changeFirstPlayer();
+    modifyPlayersAndColors();
     showCurrentPlayer(currentPlayer);
+
     for (let i = 0; i < 9; i++) {
         tableCheck[i] = i;
-    }
+    };
+
     for (let j = 0; j < moveHistory.length; j++) {
         let sign = (j % 2 === 0) ? "X" : "O";
         setTimeout(function () {
             document.getElementById(`cell${moveHistory[j].cell}`).classList.add(`sign${sign}`); 
             tableCheck[moveHistory[j].cell] = sign;
         }, 400 * (j + 1)) 
-    }
-    if (document.getElementById("stamp") !== null) removeElement("stamp");
+    };
+
+    if (document.getElementById("stamp") !== null) {
+        removeElement("stamp");
+    };
+
     addStamp("Start!");
     setTimeout(stampFade, 1000);
     timeFlow = setInterval(startTime, 1000);
-}
+};
 
 
 

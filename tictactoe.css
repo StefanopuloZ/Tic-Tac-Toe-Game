@@ -77,12 +77,14 @@ main {
 #counters p {
     margin: 4%;
 }
-.text-red {
+.player1-color {
     color: red;
 }
-.text-green {
-    color: rgb(0, 180, 0);
+.player2-color {
+    color: #00b400;
 }
+
+
 .button {
     display: flex;
     width: 18%;
