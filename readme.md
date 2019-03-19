@@ -18,7 +18,7 @@ Features:
 Game logic is not complicated here, especially if done using simple double array 3x3, completed whole logic in javascript, made html table and just proceeded from there with UI. 
 I did not want to do that and I created divs, connected them with js and moved forward. It is certanly worse approach but I did it to explore what kind of problems I would encounter and to practice DOM manipulation.
 
-First and most obvios downside is code maintenance. As game mechanics and UI mechanics are not clearly separated, making any changes on both ends of the code is made unecessary complicated and time consuming as even UI change could potentially brake the app. 
+First and most obvios downside is code maintenance. As game mechanics and UI mechanics are not clearly separated, making any changes on both ends of the code is made unecessary complex and time consuming as even UI change could potentially brake the app. 
 
 Second is reusabillity. This is not something that is easily done here as nature of setup dictates that all things are closley entwined and apart from copying the whole project parts of it are very hard to separate. Altough, lack of pure functions can be artributed to my inexpirience in time of writing this project.
 
@@ -37,11 +37,11 @@ All divs are labeld with ids. When player clicks on an empty div object is creat
         document.getElementById(`cell${cell}`).classList.add(`sign${currentSign}`);
     };
 
-UI is updated with a corresponding sign class and after it is checked to see if there are any 3 same signs in a row diganollay, vertically and horizontally. If there are, winner is declared and players are free to start another game. First player becomes second and vice versa, colors are changed to indicate who is 'X' and who is 'O', timer is reset, score updated and game is saved in Game Log section avilable to be viewed as a replay.
+UI is updated with a corresponding sign class and after, it is checked for any of the 3 same signs in a row diganollay, vertically and horizontally. If there are, winner is declared and players are free to start another game. First player becomes second and vice versa, colors are changed to indicate who is 'X' and who is 'O', timer is reset, score updated and game is saved in Game Log section avilable to be viewed as a replay.
 
-tableCheck global array serves for checking if there is winner.
+tableCheck global array here, serves for checking if there is winner.
 
-If game is not finished Save option becomes avilable. When game is saved it can be loaded and everything is loaded including player names, colors and turns.
+If game is not finished Save option becomes avilable. When game is saved it can be loaded and everything is loaded including player names, colors and turns. Game continues from there normally.
 
 Method for changing player colors and names:
 
