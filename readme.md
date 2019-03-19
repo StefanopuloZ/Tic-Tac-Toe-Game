@@ -65,6 +65,6 @@ Reset is set to false. If method is called with true parametar it indicates rese
 
 ## Technologies
 
-Vanilla javascript, css and html. No back end. Local storage is used for storing data.
+Vanilla javascript, css and html. No back end here. Local storage is used for storing data.
 
 ### Created by Stefan Deak
